@@ -21,7 +21,7 @@ print "opening Yaml"
 with open('typeIDs.yaml','r') as yamlstream:
     print "importing"
     trans = connection.begin()
-    typeids=yaml.load(yamlstream,Loader =yaml.CLoader)
+    typeids=yaml.load(yamlstream,Loader=yaml.CSafeLoader)
     print "Yaml Processed into memory"
     for typeid in typeids:
         print typeid
