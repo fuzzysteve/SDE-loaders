@@ -5,17 +5,38 @@ sys.setdefaultencoding("utf-8")
 import pyodbc
 import yaml
 import pprint
-import sqlalchemy
+from sqlalchemy import create_engine, Column, MetaData, Table
+from sqlalchemy import Integer, String, Text, Float, Boolean, BigInteger, Numeric, SmallInteger
+
 
 print "connecting to DB"
-engine = sqlalchemy.create_engine('mssql+pyodbc://ebs')
+engine = create_engine('mssql+pyodbc://ebs')
 connection = engine.connect()
 
 
 
-metadata = sqlalchemy.MetaData()
-invTypes = sqlalchemy.Table('invTypes',metadata,autoload=True, autoload_with=engine);
-trnTranslations = sqlalchemy.Table('trnTranslations',metadata,autoload=True, autoload_with=engine);
+metadata = MetaData()
+#invTypes = Table('invTypes',metadata,autoload=True, autoload_with=engine);
+
+invTypes = Table('invTypes',metadata,
+				Column('typeID',BigInteger,primary_key=True, autoincrement=False),
+				Column('groupID',Integer),
+				Column('typeName',String),
+				Column('description',Text),
+				Column('mass',Float),
+				Column('volume',Float),
+				Column('capacity',Float),
+				Column('portionSize',Integer),
+				Column('raceID',SmallInteger),
+				Column('basePrice',Numeric(scale=18,precision=4)),
+				Column('published',Boolean),
+				Column('marketGroupID',BigInteger),
+				Column('iconID',BigInteger),
+				Column('soundID',BigInteger)
+				)
+
+
+trnTranslations = Table('trnTranslations',metadata,autoload=True, autoload_with=engine);
 
 print "opening Yaml"
 with open('typeIDs.yaml','r') as yamlstream:
