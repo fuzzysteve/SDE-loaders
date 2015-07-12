@@ -6,7 +6,7 @@ import pyodbc
 import yaml
 import pprint
 from sqlalchemy import create_engine, Column, MetaData, Table, Index
-from sqlalchemy import Integer, String, Text, Float, Boolean, BigInteger, Numeric, SmallInteger
+from sqlalchemy import Integer, String, Text, Float, Boolean, BigInteger, Numeric, SmallInteger,Unicode,UnicodeText
 
 
 print "connecting to DB"
@@ -20,30 +20,41 @@ metadata = MetaData()
 print "Setting up Tables"
 
 invTypes = Table('invTypes',metadata,
-				Column('typeID',BigInteger,primary_key=True, autoincrement=False),
-				Column('groupID',Integer),
-				Column('typeName',String(100)),
-				Column('description',Text),
-				Column('mass',Float),
-				Column('volume',Float),
-				Column('capacity',Float),
-				Column('portionSize',Integer),
-				Column('raceID',SmallInteger),
-				Column('basePrice',Numeric(scale=4,precision=19)),
-				Column('published',Boolean),
-				Column('marketGroupID',BigInteger),
-				Column('iconID',BigInteger),
-				Column('soundID',BigInteger)
-				)
+                Column('typeID',BigInteger,primary_key=True, autoincrement=False),
+                Column('groupID',Integer),
+                Column('typeName',String(100)),
+                Column('description',Text),
+                Column('mass',Float),
+                Column('volume',Float),
+                Column('capacity',Float),
+                Column('portionSize',Integer),
+                Column('raceID',SmallInteger),
+                Column('basePrice',Numeric(scale=4,precision=19)),
+                Column('published',Boolean),
+                Column('marketGroupID',BigInteger),
+                Column('iconID',BigInteger),
+                Column('soundID',BigInteger)
+                )
 Index('invTypes_groupid',invTypes.c.groupID)
 
 trnTranslations = Table('trnTranslations',metadata,
-						Column('tcID',Integer,primary_key=True,autoincrement=False),
-						Column('keyID',Integer,primary_key=True,autoincrement=False),
-						Column('languageID',String,primary_key=True,autoincrement=False),
-						Column('text',Text)
-);
-
+                        Column('tcID',Integer,autoincrement=False),
+                        Column('keyID',Integer,autoincrement=False),
+                        Column('languageID',Unicode,autoincrement=False),
+                        Column('text',UnicodeText)
+)
+certMasteries = Table('certMasteries',metadata,
+                    Column('typeID',Integer),
+                    Column('masteryLevel',Integer),
+                    Column('certID',Integer))
+invTraits = Table('invTraits',metadata,
+                    Column('typeID',Integer),
+                    Column('skillID',Integer),
+                    Column('bonus',Float),
+                    Column('bonusText',Text),
+                    Column('unitID',Integer))
+                
+metadata.drop_all(engine,checkfirst=True)
 metadata.create_all(engine,checkfirst=True)
 
 print "opening Yaml"
@@ -68,10 +79,28 @@ with open('typeIDs.yaml','r') as yamlstream:
                            marketGroupID=typeids[typeid].get('marketGroupID'),
                            iconID=typeids[typeid].get('iconID'),
                            soundID=typeids[typeid].get('soundID'))
+        if  typeids[typeid].has_key("masteries"):
+            for level in typeids[typeid]["masteries"]:
+                for cert in typeids[typeid]["masteries"][level]:
+                    connection.execute(certMasteries.insert(),
+                                        typeID=typeid,
+                                        masteryLevel=level,
+                                        certID=cert)
         if (typeids[typeid].has_key('name')):
             for lang in typeids[typeid]['name']:
-                connection.execute(trnTranslations.insert(),tcID=8,keyID=typeid,languageID=lang,text=typeids[typeid]['name'][lang].decode('utf-8'));
+                connection.execute(trnTranslations.insert(),tcID=8,keyID=typeid,languageID=lang.decode('utf-8'),text=typeids[typeid]['name'][lang].decode('utf-8'))
         if (typeids[typeid].has_key('description')):
             for lang in typeids[typeid]['description']:
-                connection.execute(trnTranslations.insert(),tcID=33,keyID=typeid,languageID=lang,text=typeids[typeid]['description'][lang].decode('utf-8'));
+                connection.execute(trnTranslations.insert(),tcID=33,keyID=typeid,languageID=lang.decode('utf-8'),text=typeids[typeid]['description'][lang].decode('utf-8'))
+        if (typeids[typeid].has_key('traits')):
+            for skill in typeids[typeid]['traits']:
+                for trait in typeids[typeid]['traits'][skill]:
+                    connection.execute(invTraits.insert(),
+                                        typeID=typeid,
+                                        skillID=skill,
+                                        bonus=typeids[typeid]['traits'][skill][trait].get('bonus'),
+                                        bonusText=typeids[typeid]['traits'][skill][trait].get('bonusText',{}).get('en',''),
+                                        unitID=typeids[typeid]['traits'][skill][trait].get('unitID'))
+                    for languageid in typeids[typeid]['traits'][skill][trait].get('bonusText',{}):
+                        connection.execute(trnTranslations.insert(),tcID=1001,keyID=typeid,languageID=languageid.decode('utf-8'),text=typeids[typeid]['traits'][skill][trait]['bonusText'][languageid].decode('utf-8'))
 trans.commit()
