@@ -54,7 +54,7 @@ invTraits = Table('invTraits',metadata,
                     Column('bonusText',Text),
                     Column('unitID',Integer))
                 
-metadata.drop_all(engine,checkfirst=True)
+
 metadata.create_all(engine,checkfirst=True)
 
 print "opening Yaml"
