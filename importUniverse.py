@@ -10,6 +10,21 @@ from sqlalchemy import Integer, String, Text, Float, Boolean, BigInteger, Numeri
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.types import REAL
+
+# redefining REAL datatypes to be a double precision float. Might be a touch execessive, but deals with a mapping bug,
+# forcing a double, rather than a float (which is too small)
+@compiles(REAL, "mssql")
+def compile_real_mssql(type_, compiler, **kw):
+    return "FLOAT(53)"
+
+
+
+
+
+
+
 def make_session(in_engine):
     engine = in_engine
     Session = sessionmaker(bind=engine)
@@ -24,6 +39,8 @@ def pull_data(from_db, to_db, tables):
         print 'Pulling schema from source server'
         if table_name=='mapCelestialStatistics':
             table = Table(table_name, meta, Column('pressure',BigInteger),Column('radius',BigInteger),autoload=True,autoload_with=sengine)
+        elif table_name=='mapLandmarks':
+            table = Table(table_name, meta, Column('description',Text),autoload=True,autoload_with=sengine)
         else:
             table = Table(table_name, meta, autoload=True,autoload_with=sengine)
         print 'Creating table on destination server'
@@ -41,10 +58,7 @@ def pull_data(from_db, to_db, tables):
         print 'Committing changes'
         destination.commit()
 
-        
-        
-        
-def create_indexes(from_db, to_db, tables):
+
 
 def quick_mapper(table):
     Base = declarative_base()
