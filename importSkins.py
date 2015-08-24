@@ -26,12 +26,8 @@ skinLicense = Table('skinLicense',metadata,
                 )
 skinMaterials = Table('skinMaterials',metadata,
                 Column('skinMaterialID',Integer,primary_key=True, autoincrement=False),
-                Column('material',String(40)),
                 Column('displayNameID',Integer),
-                Column('colorWindow',String(6)),
-                Column('colorPrimary',String(6)),
-                Column('colorSecondary',String(6)),
-                Column('colorHull',String(6))
+                Column('materialSetID',Integer)
                 )
 
 skins_table = Table('skins',metadata,
@@ -84,11 +80,8 @@ with open('skinMaterials.yaml','r') as yamlstream:
     for materialid in skinmaterials:
         connection.execute(skinMaterials.insert(),
                             skinMaterialID=materialid,
-                            colorHull=skinmaterials[materialid]['colorHull'],
-                            colorPrimary=skinmaterials[materialid]['colorPrimary'],
-                            colorSecondary=skinmaterials[materialid]['colorSecondary'],
-                            colorWindow=skinmaterials[materialid]['colorWindow'],
                             displayNameID=skinmaterials[materialid]['displayNameID'],
-                            material=skinmaterials[materialid]['material'])
+                            materialSetID=skinmaterials[materialid]['materialSetID']
+                            )
 
 trans.commit()

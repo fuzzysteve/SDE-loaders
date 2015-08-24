@@ -48,6 +48,7 @@ certMasteries = Table('certMasteries',metadata,
                     Column('masteryLevel',Integer),
                     Column('certID',Integer))
 invTraits = Table('invTraits',metadata,
+                    Column('traitID',Integer,primary_key=True),
                     Column('typeID',Integer),
                     Column('skillID',Integer),
                     Column('bonus',Float),
@@ -95,12 +96,13 @@ with open('typeIDs.yaml','r') as yamlstream:
         if (typeids[typeid].has_key('traits')):
             for skill in typeids[typeid]['traits']:
                 for trait in typeids[typeid]['traits'][skill]:
-                    connection.execute(invTraits.insert(),
+                    result=connection.execute(invTraits.insert(),
                                         typeID=typeid,
                                         skillID=skill,
                                         bonus=typeids[typeid]['traits'][skill][trait].get('bonus'),
                                         bonusText=typeids[typeid]['traits'][skill][trait].get('bonusText',{}).get('en',''),
                                         unitID=typeids[typeid]['traits'][skill][trait].get('unitID'))
+                    traitid=result.inserted_primary_key
                     for languageid in typeids[typeid]['traits'][skill][trait].get('bonusText',{}):
-                        connection.execute(trnTranslations.insert(),tcID=1001,keyID=typeid,languageID=languageid.decode('utf-8'),text=typeids[typeid]['traits'][skill][trait]['bonusText'][languageid].decode('utf-8'))
+                        connection.execute(trnTranslations.insert(),tcID=1001,keyID=traitid[0],languageID=languageid.decode('utf-8'),text=typeids[typeid]['traits'][skill][trait]['bonusText'][languageid].decode('utf-8'))
 trans.commit()
