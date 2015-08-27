@@ -42,11 +42,10 @@ skinShip = Table('skinShip',metadata,
                 
                 
 metadata.create_all(engine,checkfirst=True)
-
+trans = connection.begin()
 print "opening Yaml1"
 with open('skins.yaml','r') as yamlstream:
     print "importing"
-    trans = connection.begin()
     skins=yaml.load(yamlstream,Loader=yaml.CSafeLoader)
     print "Yaml Processed into memory"
     for skinid in skins:
@@ -63,7 +62,6 @@ with open('skins.yaml','r') as yamlstream:
 print "opening Yaml2"
 with open('skinLicenses.yaml','r') as yamlstream:
     print "importing"
-    trans = connection.begin()
     skinlicenses=yaml.load(yamlstream,Loader=yaml.CSafeLoader)
     print "Yaml Processed into memory"
     for licenseid in skinlicenses:
@@ -74,7 +72,6 @@ with open('skinLicenses.yaml','r') as yamlstream:
 print "opening Yaml3"
 with open('skinMaterials.yaml','r') as yamlstream:
     print "importing"
-    trans = connection.begin()
     skinmaterials=yaml.load(yamlstream,Loader=yaml.CSafeLoader)
     print "Yaml Processed into memory"
     for materialid in skinmaterials:
