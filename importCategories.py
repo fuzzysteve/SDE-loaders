@@ -58,5 +58,5 @@ with open(sourcePath+'categoryIDs.yaml','r') as yamlstream:
 						   published=categoryids[categoryid].get('published',0))
         if (categoryids[categoryid].has_key('name')):
             for lang in categoryids[categoryid]['name']:
-                connection.execute(trnTranslations.insert(),tcID=5,keyID=categoryid,languageID=lang,text=categoryids[categoryid]['name'][lang].decode('utf-8'));
+                connection.execute(trnTranslations.insert(),tcID=6,keyID=categoryid,languageID=lang,text=categoryids[categoryid]['name'][lang].decode('utf-8'));
 trans.commit()
