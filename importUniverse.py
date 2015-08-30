@@ -67,11 +67,19 @@ def quick_mapper(table):
     return GenericMapper
 
 if __name__ == '__main__':
+    import ConfigParser, os
+    fileLocation = os.path.dirname(os.path.realpath(__file__))
+    inifile=fileLocation+'/sdeloader.cfg'
+    config = ConfigParser.ConfigParser()
+    config.read(inifile)
+    destination=config.get('Database','destination')
+    sqlitedriver=config.get('Database','sqlitedriver')
+    sourcePath=config.get('Files','sourcePath')
     print "connecting to MSSQL DB"
-    engine = create_engine('mssql+pyodbc://ebs')
+    engine = create_engine(destination)
     connection = engine.connect()
     print "connecting to SQLLite DB"
-    sqliteengine = create_engine('sqlite+pysqlite:///universeDataDx.db')
+    sqliteengine = create_engine(sqlitedriver+sourcePath+'universeDataDx.db')
     sqliteconnection = sqliteengine.connect()
     metadata = MetaData()
     metadata.reflect(sqliteengine)

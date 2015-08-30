@@ -8,9 +8,16 @@ import pprint
 from sqlalchemy import create_engine, Column, MetaData, Table, Index
 from sqlalchemy import Integer, String, Text, Float, Boolean, BigInteger, Numeric, SmallInteger
 
+import ConfigParser, os
+fileLocation = os.path.dirname(os.path.realpath(__file__))
+inifile=fileLocation+'/sdeloader.cfg'
+config = ConfigParser.ConfigParser()
+config.read(inifile)
+destination=config.get('Database','destination')
+sourcePath=config.get('Files','sourcePath')
 
 print "connecting to DB"
-engine = create_engine('mssql+pyodbc://ebs')
+engine = create_engine(destination)
 connection = engine.connect()
 
 
@@ -32,7 +39,7 @@ eveGraphics = Table('eveGraphics',metadata,
 metadata.create_all(engine,checkfirst=True)
 
 print "opening Yaml"
-with open('graphicIDs.yaml','r') as yamlstream:
+with open(sourcePath+'graphicIDs.yaml','r') as yamlstream:
     print "importing"
     trans = connection.begin()
     graphics=yaml.load(yamlstream,Loader=yaml.CSafeLoader)

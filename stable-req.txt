@@ -1,0 +1,5 @@
+SDELoader
+pyodbc>=3.0.10
+PyYAML>=3.11
+six>=1.9.0
+SQLAlchemy>=1.0.6

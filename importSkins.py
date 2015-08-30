@@ -8,9 +8,16 @@ import pprint
 from sqlalchemy import create_engine, Column, MetaData, Table, Index
 from sqlalchemy import Integer, String, Text, Float, Boolean, BigInteger, Numeric, SmallInteger
 
+import ConfigParser, os
+fileLocation = os.path.dirname(os.path.realpath(__file__))
+inifile=fileLocation+'/sdeloader.cfg'
+config = ConfigParser.ConfigParser()
+config.read(inifile)
+destination=config.get('Database','destination')
+sourcePath=config.get('Files','sourcePath')
 
 print "connecting to DB"
-engine = create_engine('mssql+pyodbc://ebs')
+engine = create_engine(destintion)
 connection = engine.connect()
 
 
@@ -44,7 +51,7 @@ skinShip = Table('skinShip',metadata,
 metadata.create_all(engine,checkfirst=True)
 trans = connection.begin()
 print "opening Yaml1"
-with open('skins.yaml','r') as yamlstream:
+with open(sourcePath+'skins.yaml','r') as yamlstream:
     print "importing"
     skins=yaml.load(yamlstream,Loader=yaml.CSafeLoader)
     print "Yaml Processed into memory"
@@ -60,7 +67,7 @@ with open('skins.yaml','r') as yamlstream:
 
 
 print "opening Yaml2"
-with open('skinLicenses.yaml','r') as yamlstream:
+with open(sourcePath+'skinLicenses.yaml','r') as yamlstream:
     print "importing"
     skinlicenses=yaml.load(yamlstream,Loader=yaml.CSafeLoader)
     print "Yaml Processed into memory"
@@ -70,7 +77,7 @@ with open('skinLicenses.yaml','r') as yamlstream:
                             duration=skinlicenses[licenseid]['duration'],
                             skinID=skinlicenses[licenseid]['skinID'])
 print "opening Yaml3"
-with open('skinMaterials.yaml','r') as yamlstream:
+with open(sourcePath+'skinMaterials.yaml','r') as yamlstream:
     print "importing"
     skinmaterials=yaml.load(yamlstream,Loader=yaml.CSafeLoader)
     print "Yaml Processed into memory"

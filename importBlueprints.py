@@ -9,8 +9,18 @@ from sqlalchemy import create_engine, Column, MetaData, Table, Index
 from sqlalchemy import Integer, String, Text, Float, Boolean, BigInteger, Numeric, SmallInteger
 
 
+
+import ConfigParser, os
+fileLocation = os.path.dirname(os.path.realpath(__file__))
+inifile=fileLocation+'/sdeloader.cfg'
+config = ConfigParser.ConfigParser()
+config.read(inifile)
+destination=config.get('Database','destination')
+sourcePath=config.get('Files','sourcePath')
+
+
 print "connecting to DB"
-engine = create_engine('mssql+pyodbc://ebs')
+engine = create_engine(destination)
 connection = engine.connect()
 
 
@@ -65,7 +75,6 @@ industryActivityProbabilities = Table('industryActivityProbabilities',metadata,
 							Column('probability',Numeric(scale=2,precision=3))
 							)
 
-
 metadata.create_all(engine,checkfirst=True)
 
 activityIDs={"copying":5,"manufacturing":1,"research_material":4,"research_time":3,"invention":8};
@@ -73,7 +82,7 @@ activityIDs={"copying":5,"manufacturing":1,"research_material":4,"research_time"
 
 
 print "opening Yaml"
-with open('blueprints.yaml','r') as yamlstream:
+with open(sourcePath+'blueprints.yaml','r') as yamlstream:
     print "importing"
     trans = connection.begin()
     blueprints=yaml.load(yamlstream,Loader=yaml.CSafeLoader)

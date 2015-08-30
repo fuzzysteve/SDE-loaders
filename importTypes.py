@@ -8,9 +8,16 @@ import pprint
 from sqlalchemy import create_engine, Column, MetaData, Table, Index
 from sqlalchemy import Integer, String, Text, Float, Boolean, BigInteger, Numeric, SmallInteger,Unicode,UnicodeText
 
+import ConfigParser, os
+fileLocation = os.path.dirname(os.path.realpath(__file__))
+inifile=fileLocation+'/sdeloader.cfg'
+config = ConfigParser.ConfigParser()
+config.read(inifile)
+destination=config.get('Database','destination')
+sourcePath=config.get('Files','sourcePath')
 
 print "connecting to DB"
-engine = create_engine('mssql+pyodbc://ebs')
+engine = create_engine(destination)
 connection = engine.connect()
 
 
@@ -59,7 +66,7 @@ invTraits = Table('invTraits',metadata,
 metadata.create_all(engine,checkfirst=True)
 
 print "opening Yaml"
-with open('typeIDs.yaml','r') as yamlstream:
+with open(sourcePath+'typeIDs.yaml','r') as yamlstream:
     print "importing"
     trans = connection.begin()
     typeids=yaml.load(yamlstream,Loader=yaml.CSafeLoader)

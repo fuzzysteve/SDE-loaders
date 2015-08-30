@@ -8,9 +8,16 @@ import pprint
 from sqlalchemy import create_engine, Column, MetaData, Table, Index
 from sqlalchemy import Integer, String, Text, Float, Boolean, BigInteger, Numeric, SmallInteger
 
+import ConfigParser, os
+fileLocation = os.path.dirname(os.path.realpath(__file__))
+inifile=fileLocation+'/sdeloader.cfg'
+config = ConfigParser.ConfigParser()
+config.read(inifile)
+destination=config.get('Database','destination')
+sourcePath=config.get('Files','sourcePath')
 
 print "connecting to DB"
-engine = create_engine('mssql+pyodbc://ebs')
+engine = create_engine(destination)
 connection = engine.connect()
 
 
@@ -40,7 +47,7 @@ metadata.create_all(engine,checkfirst=True)
 skillmap={"basic":0,"standard":1,"improved":2,"advanced":3,"elite":4}
 
 print "opening Yaml"
-with open('certificates.yaml','r') as yamlstream:
+with open(sourcePath+'certificates.yaml','r') as yamlstream:
     print "importing"
     trans = connection.begin()
     certificates=yaml.load(yamlstream,Loader=yaml.CSafeLoader)
