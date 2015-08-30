@@ -1,0 +1,4 @@
+4,6,dbo.invCategories,categoryName,categoryID
+5,7,dbo.invGroups,groupName,groupID
+5,8,dbo.invTypes,typeName,typeID
+5,33,dbo.invTypes,description,typeID
