@@ -17,7 +17,7 @@ destination=config.get('Database','destination')
 sourcePath=config.get('Files','sourcePath')
 
 print "connecting to DB"
-engine = create_engine(destintion)
+engine = create_engine(destination)
 connection = engine.connect()
 
 
